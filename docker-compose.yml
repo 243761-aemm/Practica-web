@@ -20,7 +20,7 @@ services:
     restart: unless-stopped
     environment:
       NEXT_PUBLIC_API_BASE_URL: http://localhost:3000
-      # Cambiamos postgres:postgres por app_user:cafeteria123
+      
       DATABASE_URL: postgresql://app_user:cafeteria123@db:5432/awos
     ports:
       - "3000:3000"

@@ -1,20 +1,21 @@
 import { query } from '@/lib/db';
 import Pagination from '@/components/Pagination';
 
+export const dynamic = 'force-dynamic';
+
 export default async function CustomerValueReport({ 
   searchParams 
 }: { 
   searchParams: { page?: string } 
 }) {
-  // 1. Validación de parámetros (Paginación Server-side)
-  const page = Math.max(1, parseInt(searchParams.page || '1'));
-  const limit = 5; // Cantidad de registros por página
-  const offset = (page - 1) * limit;
+  const search = await searchParams;
+  const currentPage = Number(search?.page) || 1;
+  const limit = 5;
+  const offset = (currentPage - 1) * limit;
 
-  // 2. Consulta a la VIEW obligatoria (SELECT solo sobre VIEW) [cite: 30, 41]
-  // Usamos parámetros para evitar SQL Injection
+  
   const res = await query(
-    'SELECT * FROM vw_customer_value ORDER BY total_gastado DESC LIMIT $1 OFFSET $2',
+    'SELECT * FROM vw_customer_value ORDER BY total_gastado DESC NULLS LAST LIMIT $1 OFFSET $2',
     [limit, offset]
   );
   
@@ -22,38 +23,28 @@ export default async function CustomerValueReport({
   const hasNext = customers.length === limit;
 
   return (
-    <main className="p-8">
+    <main className="p-8 text-black bg-white min-h-screen">
       <h1 className="text-2xl font-bold mb-2">Reporte 4: Valor del Cliente</h1>
-      <p className="text-gray-600 mb-6">Métrica de clientes frecuentes y su gasto promedio[cite: 27, 28].</p>
+      <p className="text-gray-600 mb-6 border-b pb-4">Clientes ordenados por monto total de consumo.</p>
 
-      {/* KPI Destacado  */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <div className="p-4 bg-green-50 border-l-4 border-green-500 rounded">
-          <span className="text-sm text-green-700 uppercase font-bold">Insight Clave</span>
-          <p className="text-lg text-green-900">
-            Mostrando los clientes con mayor impacto en la facturación.
-          </p>
-        </div>
-      </div>
-
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse border border-gray-200">
+      <div className="overflow-x-auto border rounded-lg shadow-sm">
+        <table className="w-full border-collapse">
           <thead>
-            <tr className="bg-gray-100">
-              <th className="border p-3 text-left">Cliente</th>
-              <th className="border p-3 text-left">Email</th>
-              <th className="border p-3 text-center">Órdenes</th>
-              <th className="border p-3 text-right">Total Gastado</th>
+            <tr className="bg-blue-900 text-white">
+              <th className="p-3 text-left">Cliente</th>
+              <th className="p-3 text-left">Email</th>
+              <th className="p-3 text-center">Total Órdenes</th>
+              <th className="p-3 text-right">Monto Total</th>
             </tr>
           </thead>
           <tbody>
             {customers.map((c, i) => (
-              <tr key={i} className="hover:bg-gray-50 transition">
-                <td className="border p-3 font-medium">{c.cliente} </td>
-                <td className="border p-3 text-gray-600">{c.email}</td>
-                <td className="border p-3 text-center">{c.total_ordenes}</td>
-                <td className="border p-3 text-right font-bold text-blue-600">
-                  ${parseFloat(c.total_gastado).toFixed(2)}
+              <tr key={i} className="border-b hover:bg-blue-50">
+                <td className="p-3 font-medium">{c.cliente}</td>
+                <td className="p-3 text-gray-600">{c.email}</td>
+                <td className="p-3 text-center">{c.total_ordenes}</td>
+                <td className="p-3 text-right font-bold text-blue-700">
+                  ${parseFloat(c.total_gastado || 0).toFixed(2)}
                 </td>
               </tr>
             ))}
@@ -61,8 +52,7 @@ export default async function CustomerValueReport({
         </table>
       </div>
 
-      {/* Control de Paginación */}
-      <Pagination page={page} hasNext={hasNext} />
+      <Pagination page={currentPage} hasNext={hasNext} />
     </main>
   );
 }

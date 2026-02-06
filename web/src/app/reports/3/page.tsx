@@ -1,11 +1,11 @@
 import { query } from '@/lib/db';
 
 export default async function InventoryRiskReport() {
-  // Consumimos la vista que ya tiene el CASE y el porcentaje calculado
+  
   const res = await query('SELECT * FROM vw_inventory_risk ORDER BY stock ASC');
   const inventory = res.rows;
 
-  // KPI: Contar cuántos productos están en riesgo CRÍTICO
+  
   const criticalCount = inventory.filter(item => item.nivel_riesgo === 'CRÍTICO').length;
 
   return (

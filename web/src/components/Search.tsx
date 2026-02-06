@@ -1,25 +1,34 @@
 'use client';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function Search() {
   const searchParams = useSearchParams();
-  const pathname = usePathname();
   const { replace } = useRouter();
 
-  const handleSearch = (term: string) => {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const term = formData.get('query')?.toString();
+    
     const params = new URLSearchParams(searchParams);
     if (term) params.set('query', term);
     else params.delete('query');
-    params.set('page', '1'); // Reiniciar a pag 1 al buscar
-    replace(`${pathname}?${params.toString()}`);
-  };
+    
+    params.set('page', '1');
+    replace(`?${params.toString()}`);
+  }
 
   return (
-    <input
-      className="border p-2 rounded w-full md:w-64"
-      placeholder="Buscar producto..."
-      onChange={(e) => handleSearch(e.target.value)}
-      defaultValue={searchParams.get('query')?.toString()}
-    />
+    <form onSubmit={handleSubmit} className="flex gap-2">
+      <input
+        name="query"
+        className="border p-2 rounded text-black bg-gray-50 border-gray-300 focus:border-blue-500 outline-none"
+        placeholder="Buscar producto..."
+        defaultValue={searchParams.get('query')?.toString()}
+      />
+      <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        Buscar
+      </button>
+    </form>
   );
 }

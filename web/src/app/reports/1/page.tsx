@@ -1,11 +1,11 @@
 import { query } from '@/lib/db';
 
 export default async function SalesDailyReport({ searchParams }: { searchParams: { from?: string, to?: string } }) {
-  // Lógica de consulta usando la VIEW obligatoria [cite: 17, 71]
+  
   const res = await query('SELECT * FROM vw_sales_daily');
   const data = res.rows;
 
-  // KPI destacado [cite: 69]
+  
   const totalPeriodo = data.reduce((acc, curr) => acc + parseFloat(curr.total_ventas), 0);
 
   return (
