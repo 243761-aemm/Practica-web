@@ -1,9 +1,10 @@
-FROM node:18-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+# Usamos install si ci da problemas por cambios de versión
+RUN npm install
 
 COPY . .
 
