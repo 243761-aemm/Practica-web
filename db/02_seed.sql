@@ -34,12 +34,12 @@ INSERT INTO customers (name, email) VALUES
 
 
 INSERT INTO orders (customer_id, status, channel) VALUES (1, 'completed', 'physical_store');
-INSERT INTO order_items (order_id, product_id, qty, unit_price) VALUES (1, 1, 10, 30.00); -- Compra mucho Espresso
+INSERT INTO order_items (order_id, product_id, qty, unit_price) VALUES (1, 1, 10, 30.00); 
 INSERT INTO payments (order_id, method, paid_amount) VALUES (1, 'cash', 300.00);
 
 
 INSERT INTO orders (customer_id, status, channel) VALUES (2, 'completed', 'app');
-INSERT INTO order_items (order_id, product_id, qty, unit_price) VALUES (2, 7, 5, 75.00); -- Frappés
+INSERT INTO order_items (order_id, product_id, qty, unit_price) VALUES (2, 7, 5, 75.00); 
 INSERT INTO payments (order_id, method, paid_amount) VALUES (2, 'card', 375.00);
 
 

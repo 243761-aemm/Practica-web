@@ -1,55 +1,67 @@
-import { query } from '@/lib/db';
+// web/src/app/reports/3/page.tsx
 
 export default async function InventoryRiskReport() {
+  // Consumimos la API que llama a vw_inventory_risk
+  const response = await fetch('http://localhost:3000/api/reports/3', { cache: 'no-store' });
   
-  const res = await query('SELECT * FROM vw_inventory_risk ORDER BY stock ASC');
-  const inventory = res.rows;
+  if (!response.ok) {
+    return <p className="p-8 text-red-500">Error al cargar el reporte de inventario.</p>;
+  }
 
-  
-  const criticalCount = inventory.filter(item => item.nivel_riesgo === 'CRÍTICO').length;
+  const data = await response.json();
 
   return (
-    <main className="p-8">
-      <h1 className="text-2xl font-bold mb-2">Reporte 3: Riesgo de Inventario</h1>
-      <p className="text-gray-600 mb-6">Monitoreo de existencias basado en niveles de seguridad.</p>
-
-      {/* KPI de Alerta */}
-      <div className="mb-8">
-        <div className={`p-4 rounded-lg border ${criticalCount > 0 ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'}`}>
-          <p className="text-sm font-bold uppercase tracking-wide">Estado Crítico</p>
-          <p className="text-3xl font-black">{criticalCount} <span className="text-lg font-normal">productos por agotarse</span></p>
-        </div>
+    <main className="p-8 bg-white min-h-screen">
+      <div className="flex items-center gap-3 mb-6">
+        <span className="text-4xl">⚠️</span>
+        <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+          Control de Riesgo de Inventario
+        </h1>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm">
+      <div className="overflow-hidden rounded-xl border-2 border-slate-200 shadow-sm">
         <table className="w-full text-left border-collapse">
-          <thead className="bg-gray-50 text-gray-700">
-            <tr>
-              <th className="p-4 font-semibold border-b">Producto</th>
-              <th className="p-4 font-semibold border-b">Categoría</th>
-              <th className="p-4 font-semibold border-b text-center">Stock</th>
-              <th className="p-4 font-semibold border-b text-center">Nivel de Riesgo</th>
+          <thead>
+            <tr className="bg-slate-900 text-white">
+              <th className="p-4 font-bold uppercase text-xs">Producto</th>
+              <th className="p-4 font-bold uppercase text-xs">Categoría</th>
+              <th className="p-4 font-bold uppercase text-xs text-center">Stock Actual</th>
+              <th className="p-4 font-bold uppercase text-xs text-center">Estado de Riesgo</th>
             </tr>
           </thead>
-          <tbody>
-            {inventory.map((item, i) => (
-              <tr key={i} className="hover:bg-gray-50">
-                <td className="p-4 border-b">{item.producto}</td>
-                <td className="p-4 border-b text-gray-500 text-sm">{item.categoria}</td>
-                <td className="p-4 border-b text-center font-mono">{item.stock}</td>
-                <td className="p-4 border-b text-center">
-                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                    item.nivel_riesgo === 'CRÍTICO' ? 'bg-red-100 text-red-700' :
-                    item.nivel_riesgo === 'BAJO' ? 'bg-yellow-100 text-yellow-700' :
-                    'bg-green-100 text-green-700'
+          <tbody className="divide-y divide-slate-200">
+            {data.map((prod: any, index: number) => (
+              <tr key={index} className="hover:bg-slate-50 transition-colors">
+                <td className="p-4 font-semibold text-slate-800">
+                  {prod.producto} {/* Coincide con p.name AS producto en tu SQL */}
+                </td>
+                <td className="p-4 text-slate-500 italic">
+                  {prod.categoria} {/* Coincide con c.name AS categoria en tu SQL */}
+                </td>
+                <td className="p-4 text-center font-mono font-bold text-lg">
+                  {prod.stock}
+                </td>
+                <td className="p-4 text-center">
+                  <span className={`px-3 py-1 rounded-full text-[10px] font-black tracking-widest shadow-sm ${
+                    prod.nivel_riesgo === 'CRÍTICO' 
+                      ? 'bg-red-600 text-white' 
+                      : prod.nivel_riesgo === 'BAJO' 
+                        ? 'bg-orange-500 text-white' 
+                        : 'bg-emerald-500 text-white'
                   }`}>
-                    {item.nivel_riesgo}
+                    {prod.nivel_riesgo} {/* Coincide con tu CASE en SQL */}
                   </span>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className="mt-6 p-4 bg-slate-100 rounded-lg border-l-4 border-slate-400">
+        <p className="text-xs text-slate-600">
+          * Los niveles se calculan automáticamente: <strong>CRÍTICO</strong> (≤ 5), <strong>BAJO</strong> (≤ 15), <strong>ESTABLE</strong> (mayor a 15).
+        </p>
       </div>
     </main>
   );
