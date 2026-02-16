@@ -1,58 +1,73 @@
-import { query } from '@/lib/db';
 import Pagination from '@/components/Pagination';
 
-export const dynamic = 'force-dynamic';
-
-export default async function CustomerValueReport({ 
-  searchParams 
-}: { 
-  searchParams: { page?: string } 
+export default async function CustomerValueReport(props: {
+  searchParams: Promise<{ page?: string }>;
 }) {
-  const search = await searchParams;
-  const currentPage = Number(search?.page) || 1;
-  const limit = 5;
-  const offset = (currentPage - 1) * limit;
+  const searchParams = await props.searchParams;
+  const page = parseInt(searchParams.page || '1');
 
+  // Consumimos la API que consulta la vista vw_customer_value
+  const url = new URL('http://localhost:3000/api/reports/4');
+  url.searchParams.append('page', page.toString());
+
+  const response = await fetch(url.toString(), { cache: 'no-store' });
   
-  const res = await query(
-    'SELECT * FROM vw_customer_value ORDER BY total_gastado DESC NULLS LAST LIMIT $1 OFFSET $2',
-    [limit, offset]
-  );
-  
-  const customers = res.rows;
-  const hasNext = customers.length === limit;
+  if (!response.ok) {
+    return <p className="p-8 text-red-500">Error al cargar el ranking de clientes.</p>;
+  }
+
+  const result = await response.json();
+  const { data, hasNext } = result;
 
   return (
-    <main className="p-8 text-black bg-white min-h-screen">
-      <h1 className="text-2xl font-bold mb-2">Reporte 4: Valor del Cliente</h1>
-      <p className="text-gray-600 mb-6 border-b pb-4">Clientes ordenados por monto total de consumo.</p>
-
-      <div className="overflow-x-auto border rounded-lg shadow-sm">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-blue-900 text-white">
-              <th className="p-3 text-left">Cliente</th>
-              <th className="p-3 text-left">Email</th>
-              <th className="p-3 text-center">Total Órdenes</th>
-              <th className="p-3 text-right">Monto Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {customers.map((c, i) => (
-              <tr key={i} className="border-b hover:bg-blue-50">
-                <td className="p-3 font-medium">{c.cliente}</td>
-                <td className="p-3 text-gray-600">{c.email}</td>
-                <td className="p-3 text-center">{c.total_ordenes}</td>
-                <td className="p-3 text-right font-bold text-blue-700">
-                  ${parseFloat(c.total_gastado || 0).toFixed(2)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <main className="p-8 bg-slate-50 min-h-screen">
+      <div className="mb-8">
+        <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tighter">
+          Ranking de Valor del Cliente (CLV)
+        </h1>
+        <p className="text-slate-500">Identificación de clientes VIP basados en consumo total.</p>
       </div>
 
-      <Pagination page={currentPage} hasNext={hasNext} />
+      <div className="grid gap-4">
+        {data.map((customer: any, index: number) => (
+          <div 
+            key={index} 
+            className="flex items-center justify-between p-5 bg-white border-2 border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow"
+          >
+            <div className="flex items-center gap-4">
+              <div className="flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full font-black text-xl">
+                {index + 1 + (page - 1) * 5}
+              </div>
+              <div>
+                <p className="font-bold text-slate-800 text-lg">
+                  {customer.cliente} {}
+                </p>
+                <p className="text-xs text-slate-400 font-medium">
+                  {customer.email}
+                </p>
+                <div className="mt-1 inline-block px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded">
+                  {customer.total_ordenes} PEDIDOS REALIZADOS
+                </div>
+              </div>
+            </div>
+
+            <div className="text-right">
+              <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Inversión Total</p>
+              <p className="text-2xl font-mono font-black text-emerald-600">
+                ${customer.total_gastado ? parseFloat(customer.total_gastado).toFixed(2) : "0.00"}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {data.length === 0 && (
+        <div className="mt-4 p-8 text-center border-2 border-dashed border-slate-200 rounded-xl">
+          <p className="text-slate-400 font-medium">No hay clientes para mostrar.</p>
+        </div>
+      )}
+
+      <Pagination page={page} hasNext={hasNext} />
     </main>
   );
 }
