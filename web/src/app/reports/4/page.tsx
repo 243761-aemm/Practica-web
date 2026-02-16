@@ -6,7 +6,7 @@ export default async function CustomerValueReport(props: {
   const searchParams = await props.searchParams;
   const page = parseInt(searchParams.page || '1');
 
-  // Consumimos la API que consulta la vista vw_customer_value
+ 
   const url = new URL('http://localhost:3000/api/reports/4');
   url.searchParams.append('page', page.toString());
 

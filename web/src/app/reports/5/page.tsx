@@ -1,5 +1,5 @@
 export default async function Reporte5Page() {
-  // El frontend NO conoce SQL, solo conoce esta URL
+  
   const response = await fetch('http://localhost:3000/api/reports/5', { cache: 'no-store' });
   const data = await response.json();
 

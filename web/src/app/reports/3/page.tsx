@@ -1,7 +1,7 @@
-// web/src/app/reports/3/page.tsx
+
 
 export default async function InventoryRiskReport() {
-  // Consumimos la API que llama a vw_inventory_risk
+
   const response = await fetch('http://localhost:3000/api/reports/3', { cache: 'no-store' });
   
   if (!response.ok) {
@@ -33,10 +33,10 @@ export default async function InventoryRiskReport() {
             {data.map((prod: any, index: number) => (
               <tr key={index} className="hover:bg-slate-50 transition-colors">
                 <td className="p-4 font-semibold text-slate-800">
-                  {prod.producto} {/* Coincide con p.name AS producto en tu SQL */}
+                  {prod.producto}
                 </td>
                 <td className="p-4 text-slate-500 italic">
-                  {prod.categoria} {/* Coincide con c.name AS categoria en tu SQL */}
+                  {prod.categoria} 
                 </td>
                 <td className="p-4 text-center font-mono font-bold text-lg">
                   {prod.stock}
@@ -49,7 +49,7 @@ export default async function InventoryRiskReport() {
                         ? 'bg-orange-500 text-white' 
                         : 'bg-emerald-500 text-white'
                   }`}>
-                    {prod.nivel_riesgo} {/* Coincide con tu CASE en SQL */}
+                    {prod.nivel_riesgo} 
                   </span>
                 </td>
               </tr>

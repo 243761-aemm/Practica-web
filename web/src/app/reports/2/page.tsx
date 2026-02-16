@@ -1,4 +1,4 @@
-// web/src/app/reports/2/page.tsx
+
 
 import Search from '@/components/Search';
 
@@ -8,7 +8,7 @@ export default async function TopProductsReport(props: {
   const searchParams = await props.searchParams;
   const query = searchParams.query || '';
 
-  // Consumimos la API interna que consulta la vista vw_top_products_ranked
+  
   const url = new URL('http://localhost:3000/api/reports/2');
   if (query) {
     url.searchParams.append('query', query);
@@ -44,20 +44,20 @@ export default async function TopProductsReport(props: {
             </div>
             
             <h2 className="font-bold text-xl text-slate-900 mb-2">
-              {item.producto} {/* Coincide con p.name AS producto en tu SQL */}
+              {item.producto} {}
             </h2>
             
             <div className="flex justify-between text-sm border-t pt-4 border-slate-100">
               <div>
                 <p className="text-slate-500 uppercase text-[10px] font-bold">Unidades</p>
                 <p className="font-mono font-bold text-lg text-slate-700">
-                  {item.unidades_vendidas} {/* Coincide con SUM(oi.qty) AS unidades_vendidas */}
+                  {item.unidades_vendidas} 
                 </p>
               </div>
               <div className="text-right">
                 <p className="text-slate-500 uppercase text-[10px] font-bold">Ingresos Totales</p>
                 <p className="font-mono font-bold text-lg text-green-600">
-                  ${parseFloat(item.ingresos_totales).toFixed(2)} {/* Coincide con ingresos_totales */}
+                  ${parseFloat(item.ingresos_totales).toFixed(2)} 
                 </p>
               </div>
             </div>
