@@ -38,6 +38,12 @@ La aplicación utiliza Server Components para la recuperación de datos.
 # Estructura del Proyecto
 1. /web: Aplicación Next.js.
 
+1.1 /web/api: Api del proyecto pararealizar peticiones
+
 2. /db: Scripts SQL de inicialización.
 
 3. Dockerfile: Configuración del entorno Node.js para producción.
+
+![alt text](image-3.png)
+![alt text](image-4.png)
+
