@@ -1,8 +1,20 @@
 // web/src/app/reports/2/page.tsx
 
-export default async function TopProductsReport() {
+import Search from '@/components/Search';
+
+export default async function TopProductsReport(props: {
+  searchParams: Promise<{ query?: string }>;
+}) {
+  const searchParams = await props.searchParams;
+  const query = searchParams.query || '';
+
   // Consumimos la API interna que consulta la vista vw_top_products_ranked
-  const response = await fetch('http://localhost:3000/api/reports/2', { cache: 'no-store' });
+  const url = new URL('http://localhost:3000/api/reports/2');
+  if (query) {
+    url.searchParams.append('query', query);
+  }
+
+  const response = await fetch(url.toString(), { cache: 'no-store' });
   
   if (!response.ok) {
     return <p className="p-8 text-red-500">Error al cargar el reporte de productos.</p>;
@@ -12,9 +24,12 @@ export default async function TopProductsReport() {
 
   return (
     <main className="p-8 bg-slate-50 min-h-screen">
-      <h1 className="text-3xl font-extrabold mb-6 text-slate-800">
-        Reporte 2: Ranking de Productos Estrella
-      </h1>
+      <div className="mb-8">
+        <h1 className="text-3xl font-extrabold mb-4 text-slate-800">
+          Reporte 2: Ranking de Productos Estrella
+        </h1>
+        <Search />
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {data.map((item: any) => (
@@ -49,6 +64,12 @@ export default async function TopProductsReport() {
           </div>
         ))}
       </div>
+
+      {data.length === 0 && (
+        <div className="mt-4 p-8 text-center border-2 border-dashed border-slate-200 rounded-xl">
+          <p className="text-slate-400 font-medium">No se encontraron productos que coincidan con tu búsqueda.</p>
+        </div>
+      )}
     </main>
   );
 }

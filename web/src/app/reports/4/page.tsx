@@ -1,14 +1,23 @@
-// web/src/app/reports/4/page.tsx
+import Pagination from '@/components/Pagination';
 
-export default async function CustomerValueReport() {
+export default async function CustomerValueReport(props: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const searchParams = await props.searchParams;
+  const page = parseInt(searchParams.page || '1');
+
   // Consumimos la API que consulta la vista vw_customer_value
-  const response = await fetch('http://localhost:3000/api/reports/4', { cache: 'no-store' });
+  const url = new URL('http://localhost:3000/api/reports/4');
+  url.searchParams.append('page', page.toString());
+
+  const response = await fetch(url.toString(), { cache: 'no-store' });
   
   if (!response.ok) {
     return <p className="p-8 text-red-500">Error al cargar el ranking de clientes.</p>;
   }
 
-  const data = await response.json();
+  const result = await response.json();
+  const { data, hasNext } = result;
 
   return (
     <main className="p-8 bg-slate-50 min-h-screen">
@@ -27,11 +36,11 @@ export default async function CustomerValueReport() {
           >
             <div className="flex items-center gap-4">
               <div className="flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full font-black text-xl">
-                {index + 1}
+                {index + 1 + (page - 1) * 5}
               </div>
               <div>
                 <p className="font-bold text-slate-800 text-lg">
-                  {customer.cliente} {/* Coincide con cu.name AS cliente */}
+                  {customer.cliente} {}
                 </p>
                 <p className="text-xs text-slate-400 font-medium">
                   {customer.email}
@@ -51,6 +60,14 @@ export default async function CustomerValueReport() {
           </div>
         ))}
       </div>
+
+      {data.length === 0 && (
+        <div className="mt-4 p-8 text-center border-2 border-dashed border-slate-200 rounded-xl">
+          <p className="text-slate-400 font-medium">No hay clientes para mostrar.</p>
+        </div>
+      )}
+
+      <Pagination page={page} hasNext={hasNext} />
     </main>
   );
 }
