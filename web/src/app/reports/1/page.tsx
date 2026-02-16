@@ -1,7 +1,7 @@
-// web/src/app/reports/1/page.tsx
+
 
 export default async function DailySalesReport() {
-  // Consumimos la API que consulta la vista vw_sales_daily
+ 
   const response = await fetch('http://localhost:3000/api/reports/1', { cache: 'no-store' });
   
   if (!response.ok) {
